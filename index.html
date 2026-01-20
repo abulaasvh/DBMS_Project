@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Attendance Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+            flex-wrap: wrap;
+        }
+
+        .nav-tab {
+            flex: 1;
+            min-width: 150px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            background: #f8f9fa;
+            border: none;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .nav-tab:hover {
+            background: #e9ecef;
+        }
+
+        .nav-tab.active {
+            background: white;
+            border-bottom: 3px solid #667eea;
+            color: #667eea;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.2);
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e1e8ed;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-tabs {
+                flex-direction: column;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 Student Attendance Management</h1>
+            <p>Simple & Efficient Attendance Tracking System</p>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('students')">👥 View Students</button>
+            <button class="nav-tab" onclick="showTab('addStudent')">➕ Add Student</button>
+            <button class="nav-tab" onclick="showTab('teachers')">👨‍🏫 View Teachers</button>
+            <button class="nav-tab" onclick="showTab('attendance')">✏️ Mark Attendance</button>
+            <button class="nav-tab" onclick="showTab('reports')">📊 View Reports</button>
+        </div>
+
+        <div class="content">
+            <!-- Tab 1: View Students -->
+            <div id="students" class="tab-content active">
+                <h2>👥 View Students</h2>
+                <p>All enrolled students in the system</p>
+                <div id="studentsList" style="margin-top: 20px;"></div>
+            </div>
+
+            <!-- Tab 2: Add Student -->
+            <div id="addStudent" class="tab-content">
+                <h2>➕ Add New Student</h2>
+                <form id="addStudentForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="studentName">Student Name *</label>
+                            <input type="text" id="studentName" name="name" required placeholder="Enter full name">
+                        </div>
+                        <div class="form-group">
+                            <label for="studentEmail">Email *</label>
+                            <input type="email" id="studentEmail" name="email" required placeholder="Enter email">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="studentPhone">Phone</label>
+                            <input type="text" id="studentPhone" name="phone" placeholder="Enter phone number">
+                        </div>
+                        <div class="form-group">
+                            <label for="studentRoll">Roll Number *</label>
+                            <input type="text" id="studentRoll" name="roll_number" required placeholder="Enter roll number">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="studentClass">Class ID *</label>
+                        <input type="number" id="studentClass" name="class_id" required placeholder="Enter class ID">
+                    </div>
+
+                    <button type="submit" class="btn">➕ Add Student</button>
+                </form>
+                <div id="addStudentAlert" class="alert"></div>
+            </div>
+
+            <!-- Tab 3: View Teachers -->
+            <div id="teachers" class="tab-content">
+                <h2>👨‍🏫 View Teachers</h2>
+                <p>All teachers in the system</p>
+                <div id="teachersList" style="margin-top: 20px;"></div>
+            </div>
+
+            <!-- Tab 4: Mark Attendance -->
+            <div id="attendance" class="tab-content">
+                <h2>✏️ Mark Attendance</h2>
+                <form id="attendanceForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="attendanceDate">📅 Date</label>
+                            <input type="date" id="attendanceDate" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="studentSelect">👤 Student</label>
+                            <select id="studentSelect" required>
+                                <option value="">-- Select Student --</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="subjectSelect">📖 Subject</label>
+                            <select id="subjectSelect" required>
+                                <option value="">-- Select Subject --</option>
+                                <option value="1">DBMS</option>
+                                <option value="2">Java Programming</option>
+                                <option value="3">Python Programming</option>
+                                <option value="4">Web Development</option>
+                                <option value="5">Data Structures</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="status">✓ Status</label>
+                            <select id="status" required>
+                                <option value="Present">Present ✓</option>
+                                <option value="Absent">Absent ✗</option>
+                                <option value="Late">Late ⏰</option>
+                                <option value="Excused">Excused 📝</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="remarks">💬 Remarks (Optional)</label>
+                        <textarea id="remarks" rows="3" placeholder="Add any notes..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn">✓ Mark Attendance</button>
+                </form>
+
+                <div id="attendanceAlert" class="alert"></div>
+            </div>
+
+            <!-- Tab 5: Reports -->
+            <div id="reports" class="tab-content">
+                <h2>📊 Attendance Reports</h2>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="reportDate">📅 Select Date</label>
+                        <input type="date" id="reportDate">
+                    </div>
+                    <div class="form-group" style="display: flex; align-items: flex-end;">
+                        <button class="btn" onclick="loadReport()" style="width: 100%;">📊 Generate Report</button>
+                    </div>
+                </div>
+
+                <div id="reportTable" style="margin-top: 20px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize date fields with today's date
+        document.getElementById('attendanceDate').valueAsDate = new Date();
+        document.getElementById('reportDate').valueAsDate = new Date();
+
+        // Tab switching function
+        function showTab(tabName) {
+            const tabs = document.querySelectorAll('.tab-content');
+            const navTabs = document.querySelectorAll('.nav-tab');
+
+            tabs.forEach(tab => tab.classList.remove('active'));
+            navTabs.forEach(tab => tab.classList.remove('active'));
+
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            if (tabName === 'students') loadStudents();
+            if (tabName === 'teachers') loadTeachers();
+            if (tabName === 'attendance') loadStudentsForSelect();
+        }
+
+        // Load all students
+        function loadStudents() {
+            fetch('get_students.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (!Array.isArray(data) || data.length === 0) {
+                        document.getElementById('studentsList').innerHTML = '<p>No students found.</p>';
+                        return;
+                    }
+
+                    let html = '<table><thead><tr><th>Roll No</th><th>Name</th><th>Class</th><th>Email</th><th>Phone</th></tr></thead><tbody>';
+                    data.forEach(student => {
+                        html += `<tr>
+                            <td><strong>${student.RollNumber}</strong></td>
+                            <td>${student.StudentName}</td>
+                            <td>${student.ClassName || '-'}</td>
+                            <td>${student.Email}</td>
+                            <td>${student.Phone || '-'}</td>
+                        </tr>`;
+                    });
+                    html += '</tbody></table>';
+                    document.getElementById('studentsList').innerHTML = html;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('studentsList').innerHTML = '<p style="color: red;">Error loading students.</p>';
+                });
+        }
+
+        // Load all teachers
+        function loadTeachers() {
+            fetch('get_teachers.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (!Array.isArray(data) || data.length === 0) {
+                        document.getElementById('teachersList').innerHTML = '<p>No teachers found.</p>';
+                        return;
+                    }
+
+                    let html = '<table><thead><tr><th>Teacher ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Department</th></tr></thead><tbody>';
+                    data.forEach(teacher => {
+                        html += `<tr>
+                            <td><strong>${teacher.TeacherID}</strong></td>
+                            <td>${teacher.TeacherName}</td>
+                            <td>${teacher.Email}</td>
+                            <td>${teacher.Phone || '-'}</td>
+                            <td>${teacher.Department || '-'}</td>
+                        </tr>`;
+                    });
+                    html += '</tbody></table>';
+                    document.getElementById('teachersList').innerHTML = html;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('teachersList').innerHTML = '<p style="color: red;">Error loading teachers.</p>';
+                });
+        }
+
+        // Handle add student form
+        document.getElementById('addStudentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const formData = new FormData();
+            formData.append('name', document.getElementById('studentName').value);
+            formData.append('email', document.getElementById('studentEmail').value);
+            formData.append('phone', document.getElementById('studentPhone').value);
+            formData.append('roll_number', document.getElementById('studentRoll').value);
+            formData.append('class_id', document.getElementById('studentClass').value);
+
+            fetch('add_student.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                const alert = document.getElementById('addStudentAlert');
+                alert.style.display = 'block';
+                if (data.success) {
+                    alert.className = 'alert alert-success';
+                    alert.textContent = '✓ Student added successfully!';
+                    document.getElementById('addStudentForm').reset();
+                    setTimeout(() => loadStudents(), 1000);
+                } else {
+                    alert.className = 'alert alert-error';
+                    alert.textContent = '✗ Error: ' + data.message;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                const alert = document.getElementById('addStudentAlert');
+                alert.className = 'alert alert-error';
+                alert.textContent = '✗ Error: Could not connect to server';
+                alert.style.display = 'block';
+            });
+        });
+
+        // Load students for attendance dropdown
+        function loadStudentsForSelect() {
+            fetch('get_students.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (!Array.isArray(data)) return;
+                    const select = document.getElementById('studentSelect');
+                    select.innerHTML = '<option value="">-- Select Student --</option>';
+                    data.forEach(student => {
+                        select.innerHTML += `<option value="${student.StudentID}">${student.RollNumber} - ${student.StudentName}</option>`;
+                    });
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        // Handle attendance form
+        document.getElementById('attendanceForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const studentId = document.getElementById('studentSelect').value;
+            const subjectId = document.getElementById('subjectSelect').value;
+            const date = document.getElementById('attendanceDate').value;
+            const status = document.getElementById('status').value;
+            const remarks = document.getElementById('remarks').value;
+
+            if (!studentId || !subjectId) {
+                showAlert('Please select both student and subject', 'error', 'attendanceAlert');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('studentId', studentId);
+            formData.append('subjectId', subjectId);
+            formData.append('date', date);
+            formData.append('status', status);
+            formData.append('remarks', remarks);
+
+            fetch('mark_attendance.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert('✓ Attendance marked successfully!', 'success', 'attendanceAlert');
+                    document.getElementById('attendanceForm').reset();
+                    document.getElementById('attendanceDate').valueAsDate = new Date();
+                } else {
+                    showAlert('✗ Error: ' + data.message, 'error', 'attendanceAlert');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('✗ Error: Could not connect to server', 'error', 'attendanceAlert');
+            });
+        });
+
+        // Load report
+        function loadReport() {
+            const date = document.getElementById('reportDate').value;
+
+            fetch(`get_attendance.php?date=${date}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (!Array.isArray(data) || data.length === 0) {
+                        document.getElementById('reportTable').innerHTML = '<p>No attendance records found.</p>';
+                        return;
+                    }
+
+                    let html = '<table><thead><tr><th>Roll No</th><th>Name</th><th>Subject</th><th>Status</th><th>Remarks</th></tr></thead><tbody>';
+                    data.forEach(record => {
+                        let statusEmoji = '';
+                        if (record.Status === 'Present') statusEmoji = '✓';
+                        else if (record.Status === 'Absent') statusEmoji = '✗';
+                        else if (record.Status === 'Late') statusEmoji = '⏰';
+                        else if (record.Status === 'Excused') statusEmoji = '📝';
+
+                        html += `<tr>
+                            <td><strong>${record.RollNumber}</strong></td>
+                            <td>${record.StudentName}</td>
+                            <td>${record.SubjectName}</td>
+                            <td><strong>${statusEmoji} ${record.Status}</strong></td>
+                            <td>${record.Remarks || '-'}</td>
+                        </tr>`;
+                    });
+                    html += '</tbody></table>';
+                    document.getElementById('reportTable').innerHTML = html;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('reportTable').innerHTML = '<p style="color: red;">Error loading reports.</p>';
+                });
+        }
+
+        // Show alert
+        function showAlert(message, type, elementId) {
+            const alert = document.getElementById(elementId || 'attendanceAlert');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            alert.style.display = 'block';
+
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 5000);
+        }
+
+        // Load students on page load
+        loadStudents();
+    </script>
+</body>
+</html>
